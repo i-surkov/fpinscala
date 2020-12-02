@@ -91,6 +91,9 @@ trait Stream[+A] {
       case _ => None
     }
 
+  def zip[B](s2: Stream[B]): Stream[(A,B)] =
+    zipWith(s2)((_,_))
+
   def startsWith[B](s: Stream[B]): Boolean =
     zipAll(s).takeWhile3(_._2.isDefined).forAll(x => x._1 == x._2)
 
