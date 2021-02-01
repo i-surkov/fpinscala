@@ -101,7 +101,7 @@ trait Stream[+A] {
     unfold(this) {
       case s@Cons(_, t) => Some(s, t())
       case _ => None
-    }.append(empty)
+    }
 
   def hasSubsequence[B >: A](s: Stream[B]): Boolean =
     tails exists (_ startsWith s)

@@ -22,11 +22,13 @@ object Nonblocking {
       ref.get // Once we've passed the latch, we know `ref` has been set, and return its value
     }
 
-    def unit[A](a: A): Par[A] =
+    def unit[A](a: A): Par[A] = {
+      // short: `_ => _ (a)`
       es => new Future[A] {
         def apply(cb: A => Unit): Unit =
           cb(a)
       }
+    }
 
     /** A non-strict version of `unit` */
     def delay[A](a: => A): Par[A] =
@@ -166,7 +168,8 @@ object Nonblocking {
       chooser(p)(choices)
 
     def join[A](p: Par[Par[A]]): Par[A] =
-      es => (cb: A => Unit) => p(es)(pp => eval(es)(pp(es)(cb)))
+      es => (cb: A => Unit) => p(es)(pp => fork(pp)(es)(cb))
+//    es => (cb: A => Unit) => p(es)(pp => eval(es)(pp(es)(cb)))
 
     def joinViaFlatMap[A](a: Par[Par[A]]): Par[A] =
       flatMap(a)(identity)

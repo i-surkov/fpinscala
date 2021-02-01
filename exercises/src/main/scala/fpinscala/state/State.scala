@@ -51,8 +51,8 @@ object RNG {
 
   def double3(rng: RNG): ((Double, Double, Double), RNG) = {
     val (d1, s1) = double(rng)
-    val (d2, s2) = double(rng)
-    val (d3, s3) = double(rng)
+    val (d2, s2) = double(s1)
+    val (d3, s3) = double(s2)
     ((d1, d2, d3), s3)
   }
 
@@ -164,6 +164,11 @@ object State {
   def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] =
     sequence(inputs.map(update _ andThen modify)).flatMap(_ => State {
       case s@Machine(_, candies, coins) => ((coins, candies), s)
+    })
+
+  def simulateMachine2(inputs: List[Input]): State[Machine, (Int, Int)] =
+    sequence(inputs.map(update _ andThen modify)).flatMap(_ => _get.map {
+      case Machine(_, candies, coins) => (coins, candies)
     })
 
 }
