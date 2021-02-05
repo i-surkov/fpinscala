@@ -1,14 +1,12 @@
 package fpinscala
 
-import language.higherKinds
-
 package object iomonad {
   import fpinscala.parallelism.Nonblocking._
 
   type IO[A] = IO3.IO[A]
   def IO[A](a: => A): IO[A] = IO3.IO[A](a)
 
-  implicit val ioMonad = IO3.freeMonad[Par]
+  implicit val ioMonad: Monad[({type f[a] = IO3.Free[Par, a]})#f] = IO3.freeMonad[Par]
 
   def now[A](a: A): IO[A] = IO3.Return(a)
 
@@ -20,7 +18,7 @@ package object iomonad {
 
   def par[A](a: Par[A]): IO[A] = IO3.Suspend(a)
 
-  def async[A](cb: ((A => Unit) => Unit)): IO[A] =
+  def async[A](cb: (A => Unit) => Unit): IO[A] =
     fork(par(Par.async(cb)))
 
   type Free[F[_], A] = IO3.Free[F, A]
